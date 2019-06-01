@@ -138,12 +138,65 @@ public class Sintatico {
 		}
 	}
 	
-	private void dcl() {
+	private void dcl() throws EOFException, IOException {
+		
+		if(this.token.getTokenType() == TokenType.DECLARE) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.ID) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.TYPE) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.TERM) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
 		
 	}
 	
-	private void cond() {
+	private void cond() throws EOFException, IOException {
 		
+		if(this.token.getTokenType() == TokenType.IF) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.L_PAR) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		explo();
+		
+		if(this.token.getTokenType() == TokenType.R_PAR) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.THEN) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		bloco();
+		
+		cndb();
 	}
 	
 	private void repf() {
@@ -154,11 +207,105 @@ public class Sintatico {
 		
 	}
 	
-	private void atrib() {
+	private void atrib() throws EOFException, IOException {
+		
+		if(this.token.getTokenType() == TokenType.IF) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		if(this.token.getTokenType() == TokenType.ASSIGN) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
+		
+		exp();
+		
+		if(this.token.getTokenType() == TokenType.TERM) {
+			this.token = this.lexico.nextToken();
+		}else {
+			//ERRO
+		}
 		
 	}
 	
 	private void rep() {
+		
+	}
+	
+	private void explo() {
+		
+	}
+	
+	private void cndb() throws EOFException, IOException {
+		
+		if(this.token.getTokenType() == TokenType.ELSE) {
+			this.token = this.lexico.nextToken();
+			bloco();	
+		
+		}//ELSE ou ELSE IF{
+		//	VAZIO();
+		//}
+		else {
+			//ERRO
+		}
+	}
+	
+	private void exp() throws EOFException, IOException {
+		
+		if(this.token.getTokenType() == TokenType.LOGIC_VAL) {
+			
+			this.token = this.lexico.nextToken();
+			fvallog();
+			
+		}else if(this.token.getTokenType() == TokenType.ID){
+			
+			this.token = this.lexico.nextToken();
+			fid();
+		
+		}else if(this.token.getTokenType() == TokenType.NUM_INT){
+			
+			this.token = this.lexico.nextToken();
+			fnumint();
+			
+		}else if(this.token.getTokenType() == TokenType.NUM_FLOAT){
+		
+			this.token = this.lexico.nextToken();
+			fnumfloat();
+		
+		}else if(this.token.getTokenType() == TokenType.L_PAR){
+			
+			this.token = this.lexico.nextToken();
+			flpar();
+			
+		}else if(this.token.getTokenType() == TokenType.LITERAL) {
+			this.token = this.lexico.nextToken();
+			
+		}else {
+			//ERRO
+		}
+	}
+	
+	private void fvallog(){
+		
+	}
+	
+	private void fid(){
+		
+	}
+	
+	private void fnumint(){
+		
+	}
+	
+	private void fnumfloat(){
+		
+	}
+	
+	private void flpar() {
+		// TODO Auto-generated method stub
 		
 	}
 	
