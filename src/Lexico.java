@@ -5,13 +5,10 @@ import java.io.IOException;
 
 public class Lexico {
 	
-	public FileLoader fileLoader;
-	public ErrorHandler helperError;
-	
+	public FileLoader fileLoader;	
 	
 	public Lexico(String fileName) throws FileNotFoundException {
 		this.fileLoader = new FileLoader(fileName);
-		this.helperError = new ErrorHandler();
 	}
 	
 	//valida os token, caso seja processado com sucesso retorna o Token, caso ocorra falhas insere no ErrorHandler o tipo do erro encontrado.
@@ -58,7 +55,7 @@ public class Lexico {
 				
 				//insere erro de caracter não esperado
 				}else {
-					this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperadoInicioToken(c, this.fileLoader.getLine(), this.fileLoader.getColumn()));
+					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperadoInicioToken(c, this.fileLoader.getLine(), this.fileLoader.getColumn()));
 					return nextToken();
 				}
 			
@@ -110,7 +107,7 @@ public class Lexico {
 				return nextToken();
 				
 			}else {
-				this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "comentário"));
+				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "comentário"));
 				return nextToken();
 			}
 			
@@ -144,7 +141,7 @@ public class Lexico {
 						return new Token(TokenType.RELOP, lexema, this.fileLoader.getLine(), this.fileLoader.getColumn());
 					
 					}else {
-						this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "RELOP"));
+						ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "RELOP"));
 						return nextToken();
 					}
 					
@@ -153,7 +150,7 @@ public class Lexico {
 				}
 				
 			}else {
-				this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "RELOP"));
+				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "RELOP"));
 				return nextToken();
 			}
 		
@@ -176,7 +173,7 @@ public class Lexico {
 			if(c == '-') {
 				return new Token(TokenType.ASSIGN, lexema, this.fileLoader.getLine(), this.fileLoader.getColumn());
 			}else {
-				this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "ASSIGN"));
+				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "ASSIGN"));
 				return nextToken();
 			}
 		
@@ -280,7 +277,7 @@ public class Lexico {
 							continue;
 							
 						}else {
-							this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
+							ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
 							return nextToken();
 						}
 						
@@ -326,14 +323,14 @@ public class Lexico {
 									}
 									
 								}else {
-									this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
+									ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
 									return nextToken();
 								}
 							}else {
 								return retornarEOFcomErro();
 							}
 						}else {
-							this.helperError.registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
+							ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroCaracterNaoEsperado(c, this.fileLoader.getLine(), this.fileLoader.getColumn(), "NUM"));
 							return nextToken();
 						}
 					}else {
@@ -370,7 +367,7 @@ public class Lexico {
 	
 	//adiciona erro de fim de arquivo não esperado e o token do fim de arquivo
 	private Token retornarEOFcomErro() {
-		this.helperError.registrarErro(ErrorHandler.gerarErroFimArquivo());
+		ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroFimArquivo());
 		return new Token(TokenType.EOF, "", this.fileLoader.getLine(), this.fileLoader.getColumn());
 	}
 		

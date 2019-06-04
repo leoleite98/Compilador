@@ -1,15 +1,21 @@
 //Leonardo Leite - CCO 7ºs - 1510032009
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ErrorHandler {
+		
+	private static ErrorHandler instance = new ErrorHandler();
+	private List<String> errors; 
 	
-	public List<String> errors;
-	
-	public ErrorHandler() {
+	private ErrorHandler() {
 		this.errors = new ArrayList<String>();
 	}
 	
+	public static ErrorHandler getInstance() {
+		return instance;
+	}
+
 	public void registrarErro(String erro) {
 		this.errors.add(erro);
 	}
