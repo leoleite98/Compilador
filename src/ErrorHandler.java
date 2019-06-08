@@ -32,6 +32,9 @@ public class ErrorHandler {
 		return this.errors;
 	}
 	
+	
+	//ERROS LEXICOS
+	
 	//gera String para erro de fim do arquivo não esperado.
 	public static String gerarErroFimArquivo() {
 		return "Fim do arquivo não esperado na leitura do Token.";
@@ -43,8 +46,77 @@ public class ErrorHandler {
 	}
 	
 	//gera String para caracter não esperado inicio Token
-		public static String gerarErroCaracterNaoEsperadoInicioToken(char c, long line, long column) {
+	public static String gerarErroCaracterNaoEsperadoInicioToken(char c, long line, long column) {
 			return "Caracter '" + c + "' não esperado no início da leitura de um novo Token. Linha " + line + ", coluna " + column +". ";
 	}
 	
+	//ERROS SINTATICOS
+		
+	public static String gerarErroProgram() {
+		return "O programa deve ser iniciado com 'program'.";
+	}
+	
+	public static String gerarErroNomeProgram() {
+		return "Não foi encontrado um nome válido para o programa.";
+	}
+	
+	public static String gerarErroTermProgram() {
+		return "Não foi encontrado ';' no final da declaração do programa.";
+	}
+	
+	public static String gerarErroEndProgram() {
+		return "Não foi encontrado 'end_prog' no final do bloco.";
+	}
+	
+	public static String gerarErroIdDeclare() {
+		return "É necessário informar um nome para a variável.";
+	}
+	
+	public static String gerarErroTypeDeclare() {
+		return "É necessário informar um tipo para a variável.";
+	}
+	
+	public static String gerarErroTermDeclare() {
+		return "Não foi encontrado ';' no final da declaração da váriavel."; 
+	}
+	
+	public static String gerarErroLparIf() {
+		return "Não foi encontrado '(' após a declaração do IF.";
+	}
+	
+	public static String gerarErroIdFor() {
+		return "É necessário inserir um ID depois do FOR.";
+	}
+	
+	public static String gerarErroAssignFor() {
+		return "Não foi encontrado '<-' na declaração do FOR.";
+	}
+	
+	public static String gerarErroToFor() {
+		return "Não foi encontrado 'to' na declaração do FOR.";
+	}
+	
+	public static String gerarErroLparWhile() {
+		return "É necessário inserir '(' depois do WHILE.";
+	}
+	
+	public static String gerarErroRparWhile() {
+		return "Não foi encontrado ')' na declaração do WHILE.";
+	}
+	
+	
+	//ERROS GENÉRICOS
+	
+	public static String gerarErroTokenNaoEsperado(String token) {
+		return "'" + token + "' não esperado.";
+	}
+	
+	public static String gerarErroTokenNaoEncontrado(String token) {
+		return "Não foi encontrado " + token + ".";
+	}
+	
+	
+	
+	
+
 }
