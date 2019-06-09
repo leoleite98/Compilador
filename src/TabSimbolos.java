@@ -51,7 +51,7 @@ public class TabSimbolos {
 	}
 	
 	public void gerarRelatorio() {
-		System.out.println("-----CONTEÚDO DA TABELA DE SIMBOLOS-----");
+		System.out.println("-----------------CONTEÚDO DA TABELA DE SIMBOLOS-----------------");
 		for(String lexema : this.tab.keySet()) {
 			System.out.println("LEXEMA: " + lexema + " - TOKEN TYPE: " + this.tab.get(lexema));
 		}

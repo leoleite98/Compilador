@@ -1,67 +1,72 @@
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 //Leonardo Leite - CCO 7ºs - 1510032009
 public class Sintatico {
 	
 	public Lexico lexico;
 	private Token token;
+	private Set<String> idsDeclarados;
 	
 	//defini o lexico em seu construtor, passando o nome do arquivo
+	//instancia o set de idsDeclarados
 	public Sintatico(String fileName) throws FileNotFoundException{
 		this.lexico = new Lexico(fileName); 
+		this.idsDeclarados = new HashSet<String>();
 	}
 	
-	//processa a leitura do arquivo, solicitando os Token para o lexico até encontrar o EOF
-	//chama o relatorio de erros caso exista algum 
+	//inicia a derivacao dos tokens
 	public void processar() throws EOFException, IOException {
 		
 		s();
 		
 		TabSimbolos.getInstance().gerarRelatorio();
 		
-		//if(!ErrorHandler.getInstance().getErrors().isEmpty()) {
-			ErrorHandler.getInstance().gerarRelatorio();
-		//}
+		ErrorHandler.getInstance().gerarRelatorio();
 	}
 	
-	private void s() throws EOFException, IOException {
+	private void s(){
 		
 		this.token = this.lexico.nextToken();
 		
-		if(this.token.getTokenType() == TokenType.PROGRAM) {
-			this.token = this.lexico.nextToken();
-		}else {
+		if(this.token.getTokenType() != TokenType.PROGRAM) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroProgram(this.token.getLin(), this.token.getCol()));
 		}
 		
-		if(this.token.getTokenType() == TokenType.ID) {
-			this.token = this.lexico.nextToken();
-		}else {
+		this.token = this.lexico.nextToken();
+		
+		if(this.token.getTokenType() != TokenType.ID) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroNomeProgram(this.token.getLin(), this.token.getCol()));
+		
+		}else {
+			this.idsDeclarados.add(this.token.getLexema());
 		}
 		
-		if(this.token.getTokenType() == TokenType.TERM) {
-			this.token = this.lexico.nextToken();
-		}else {
+		this.token = this.lexico.nextToken();
+		
+		if(this.token.getTokenType() != TokenType.TERM) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTermProgram(this.token.getLin(), this.token.getCol()));
 		}
 		
+		this.token = this.lexico.nextToken();
+		
 		bloco();
 		
-		if(this.token.getTokenType() == TokenType.END_PROG) {
-			this.token = this.lexico.nextToken();
-		}else {
+		if(this.token.getTokenType() != TokenType.END_PROG) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroEndProgram(this.token.getLin(), this.token.getCol()));
 		}
+		
+		this.token = this.lexico.nextToken();
 
 		
-		if(this.token.getTokenType() == TokenType.TERM) {
-			this.token = this.lexico.nextToken();
-		}else {
+		if(this.token.getTokenType() != TokenType.TERM) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTermEndProgram(this.token.getLin(), this.token.getCol()));
 		}
+		
+		this.token = this.lexico.nextToken();
 		
 		while(this.token.getTokenType() != TokenType.EOF) {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
@@ -69,7 +74,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void bloco() throws EOFException, IOException {
+	private void bloco(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("BLOCO").contains(this.token.getTokenType())) {
 			
@@ -78,23 +83,22 @@ public class Sintatico {
 				this.token = this.lexico.nextToken();
 				cmds();
 				
-				if(this.token.getTokenType() == TokenType.END) {
-					this.token = this.lexico.nextToken();
-				}else {
+				if(this.token.getTokenType() != TokenType.END) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroEndBloco(this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
 			
-			}else {
+			}else{
 				cmd();
 			}
-			
 			
 		}else {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 		}
 	}
 	
-	private void cmds() throws EOFException, IOException {
+	private void cmds(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("CMDS").contains(this.token.getTokenType())) {
 			
@@ -129,7 +133,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void cmd() throws EOFException, IOException {
+	private void cmd(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("CMD").contains(this.token.getTokenType())) {
 		
@@ -151,60 +155,69 @@ public class Sintatico {
 		}
 	}
 	
-	private void decl() throws EOFException, IOException {
+	private void decl(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("DECL").contains(this.token.getTokenType())) {
 			
 			this.token = this.lexico.nextToken();
-			
-			if(this.token.getTokenType() == TokenType.ID) {
-				this.token = this.lexico.nextToken();
-			}else {
+						
+			if(this.token.getTokenType() != TokenType.ID) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdDeclare(this.token.getLin(), this.token.getCol()));
+			
+			}else {
+				
+				if(!this.idsDeclarados.contains(this.token.getLexema())) {
+					this.idsDeclarados.add(this.token.getLexema());
+				
+				}else {
+					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdExistenteDeclare(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
+				}
 			}
 			
-			if(this.token.getTokenType() == TokenType.TYPE) {
-				this.token = this.lexico.nextToken();
-			}else {
+			this.token = this.lexico.nextToken();
+			
+			if(this.token.getTokenType() != TokenType.TYPE) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTypeDeclare(this.token.getLin(), this.token.getCol()));
 			}
 			
-			if(this.token.getTokenType() == TokenType.TERM) {
-				this.token = this.lexico.nextToken();
-			}else {
+			this.token = this.lexico.nextToken();
+			
+			if(this.token.getTokenType() != TokenType.TERM) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTermDeclare(this.token.getLin(), this.token.getCol()));
 			}
+						
+			this.token = this.lexico.nextToken();
 				
 		}else {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 		}
 	}
 	
-	private void cond() throws EOFException, IOException {
+	private void cond(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("COND").contains(this.token.getTokenType())) {
 			
 			this.token = this.lexico.nextToken();
 			
-			if(this.token.getTokenType() == TokenType.L_PAR) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.L_PAR) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroLparIf(this.token.getLin(), this.token.getCol()));
 			}
 			
+			this.token = this.lexico.nextToken();
+			
 			explo();
 			
-			if(this.token.getTokenType() == TokenType.R_PAR) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.R_PAR) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRparIf(this.token.getLin(), this.token.getCol()));
 			}
 			
-			if(this.token.getTokenType() == TokenType.THEN) {
-				this.token = this.lexico.nextToken();
-			}else {
+			this.token = this.lexico.nextToken();
+			
+			if(this.token.getTokenType() != TokenType.THEN) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroThenIf(this.token.getLin(), this.token.getCol()));
 			}
+			
+			this.token = this.lexico.nextToken();
 			
 			bloco();
 			
@@ -216,31 +229,34 @@ public class Sintatico {
 
 	}
 	
-	private void repf() throws EOFException, IOException {
+	private void repf(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("REPF").contains(this.token.getTokenType())) {
 			
 			this.token = this.lexico.nextToken();
 			
-			if(this.token.getTokenType() == TokenType.ID) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.ID) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdFor(this.token.getLin(), this.token.getCol()));
+			
+			}else if(!this.idsDeclarados.contains(this.token.getLexema())) {
+				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdNaoDeclarado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 			}
 			
-			if(this.token.getTokenType() == TokenType.ASSIGN) { //TODO VERIFICAR SE REALMENTE É ASSIGN
-				this.token = this.lexico.nextToken();
-			}else {
+			this.token = this.lexico.nextToken();
+			
+			if(this.token.getTokenType() != TokenType.ASSIGN) { //TODO VERIFICAR SE REALMENTE É ASSIGN
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroAssignFor(this.token.getLin(), this.token.getCol()));
 			}
 			
+			this.token = this.lexico.nextToken();
+			
 			expnum();
 			
-			if(this.token.getTokenType() == TokenType.TO) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.TO) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroToFor(this.token.getLin(), this.token.getCol()));
 			}
+			
+			this.token = this.lexico.nextToken();
 			
 			expnum();
 			
@@ -251,25 +267,25 @@ public class Sintatico {
 		}
 	}
 	
-	private void repw() throws EOFException, IOException {
+	private void repw(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("REPW").contains(this.token.getTokenType())) {
 			
 			this.token = this.lexico.nextToken();
 			
-			if(this.token.getTokenType() == TokenType.L_PAR) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.L_PAR) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroLparWhile(this.token.getLin(), this.token.getCol()));
 			}
 			
+			this.token = this.lexico.nextToken();
+			
 			explo();
 			
-			if(this.token.getTokenType() == TokenType.R_PAR) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.R_PAR) {	
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRparWhile(this.token.getLin(), this.token.getCol()));
 			}
+			
+			this.token = this.lexico.nextToken();
 						
 			bloco();
 			
@@ -278,36 +294,39 @@ public class Sintatico {
 		}	
 	}
 	
-	private void atrib() throws EOFException, IOException {
+	private void atrib(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("ATRIB").contains(this.token.getTokenType())) {
 			
-			if(this.token.getTokenType() == TokenType.ID) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.ID) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdAtrib(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
+			
+			}else if(!this.idsDeclarados.contains(this.token.getLexema())) {
+				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdNaoDeclarado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 			}
 			
-			if(this.token.getTokenType() == TokenType.ASSIGN) {
-				this.token = this.lexico.nextToken();
-			}else {
+			this.token = this.lexico.nextToken();
+			
+			if(this.token.getTokenType() != TokenType.ASSIGN) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEncontrado("<-", this.token.getLin(), this.token.getCol()));
-			}
+			}				
+			
+			this.token = this.lexico.nextToken();
 			
 			exp();
 			
-			if(this.token.getTokenType() == TokenType.TERM) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.TERM) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTermAtrib(this.token.getLin(), this.token.getCol()));
 			}
+			
+			this.token = this.lexico.nextToken();
 
 		}else {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 		}
 	}
 	
-	private void rep() throws EOFException, IOException {
+	private void rep(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("REP").contains(this.token.getTokenType())) {
 			
@@ -323,7 +342,7 @@ public class Sintatico {
 		}		
 	}
 	
-	private void explo() throws EOFException, IOException {
+	private void explo(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("EXPLO").contains(this.token.getTokenType())) {
 			
@@ -332,6 +351,11 @@ public class Sintatico {
 				fvallog();
 			
 			}else if(this.token.getTokenType() == TokenType.ID){
+				
+				if(!this.idsDeclarados.contains(this.token.getLexema())) {
+					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdNaoDeclarado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
+				}
+				
 				this.token = this.lexico.nextToken();
 				fid_1();
 			
@@ -343,12 +367,11 @@ public class Sintatico {
 				
 				expnum();
 				
-				if(this.token.getTokenType() == TokenType.RELOP) {
-					this.token = this.lexico.nextToken();
-				
-				}else {
+				if(this.token.getTokenType() != TokenType.RELOP) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRelop(this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
 				
 				expnum();
 				
@@ -360,12 +383,12 @@ public class Sintatico {
 				
 				expnum();
 				
-				if(this.token.getTokenType() == TokenType.RELOP) {
-					this.token = this.lexico.nextToken();
-				
-				}else {
+				if(this.token.getTokenType() != TokenType.RELOP) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRelop(this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
+				
 				
 				expnum();
 			
@@ -375,19 +398,17 @@ public class Sintatico {
 				
 				expnum();
 				
-				if(this.token.getTokenType() == TokenType.R_PAR) {
-					this.token = this.lexico.nextToken();
-					
-				}else {
+				if(this.token.getTokenType() != TokenType.R_PAR) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(")", this.token.getLin(), this.token.getCol()));
 				}
 				
-				if(this.token.getTokenType() == TokenType.RELOP) {
-					this.token = this.lexico.nextToken();
-					
-				}else {
+				this.token = this.lexico.nextToken();
+				
+				if(this.token.getTokenType() != TokenType.RELOP) {	
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRelop(this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
 				
 				expnum();
 			}
@@ -397,15 +418,15 @@ public class Sintatico {
 		}
 	}
 	
-	private void cndb() throws EOFException, IOException {
+	private void cndb(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("CNDB").contains(this.token.getTokenType())) {
 			
-			if(this.token.getTokenType() == TokenType.ELSE) {
-				this.token = this.lexico.nextToken();
-			}else {
+			if(this.token.getTokenType() != TokenType.ELSE) {
 				ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
 			}
+			
+			this.token = this.lexico.nextToken();
 						
 			bloco();
 			
@@ -414,7 +435,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void exp() throws EOFException, IOException {
+	private void exp(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("EXP").contains(this.token.getTokenType())) {
 			
@@ -424,6 +445,10 @@ public class Sintatico {
 				fvallog();
 				
 			}else if(this.token.getTokenType() == TokenType.ID){
+				
+				if(!this.idsDeclarados.contains(this.token.getLexema())) {
+					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroIdNaoDeclarado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
+				}
 				
 				this.token = this.lexico.nextToken();
 				fid();
@@ -447,7 +472,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void fvallog() throws EOFException, IOException{
+	private void fvallog(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FVALLOG").contains(this.token.getTokenType())) {
 			
@@ -459,7 +484,7 @@ public class Sintatico {
 		}		
 	}
 	
-	private void fid() throws EOFException, IOException{
+	private void fid(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FID").contains(this.token.getTokenType())) {
 			
@@ -478,7 +503,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void fnumint_float() throws EOFException, IOException{
+	private void fnumint_float(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FNUMINT").contains(this.token.getTokenType())
 		   ||TabFirstFollow.getInstance().getFirst().get("FNUMFLOAT").contains(this.token.getTokenType())) { //TODO melhoria, pois fnumfloat possuem o mesmo conjunto first
@@ -493,7 +518,7 @@ public class Sintatico {
 		}
 	}
 		
-	private void flpar() throws EOFException, IOException {
+	private void flpar(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FLPAR").contains(this.token.getTokenType())) {
 		
@@ -505,7 +530,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void frpar() throws EOFException, IOException {
+	private void frpar(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FRPAR").contains(this.token.getTokenType())) {
 			
@@ -518,7 +543,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void opnum() throws EOFException, IOException{
+	private void opnum(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("OPNUM").contains(this.token.getTokenType())) {
 			this.token = this.lexico.nextToken();
@@ -529,7 +554,7 @@ public class Sintatico {
 		
 	}
 	
-	private void fid_1() throws EOFException, IOException {
+	private void fid_1(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FID_1").contains(this.token.getTokenType())) {
 			
@@ -541,12 +566,11 @@ public class Sintatico {
 				
 				expnum();
 				
-				if(this.token.getTokenType() == TokenType.RELOP) {
-					this.token = this.lexico.nextToken();
-				
-				}else {
+				if(this.token.getTokenType() != TokenType.RELOP) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroRelop(this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
 				
 				expnum();
 			
@@ -561,7 +585,7 @@ public class Sintatico {
 		}
 	}
 	
-	private void expnum() throws EOFException, IOException {
+	private void expnum(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("EXPNUM").contains(this.token.getTokenType())) {
 			
@@ -575,11 +599,11 @@ public class Sintatico {
 				this.token = this.lexico.nextToken();
 				expnum();
 				
-				if(this.token.getTokenType() == TokenType.R_PAR) {
-					this.token = this.lexico.nextToken();
-				}else {
+				if(this.token.getTokenType() != TokenType.R_PAR) {
 					ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEncontrado(")", this.token.getLin(), this.token.getCol()));
 				}
+				
+				this.token = this.lexico.nextToken();
 			}
 
 		}else {
@@ -588,7 +612,7 @@ public class Sintatico {
 		
 	}
 	
-	private void val() throws EOFException, IOException{
+	private void val(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("VAL").contains(this.token.getTokenType())) {
 			this.token = this.lexico.nextToken();
@@ -598,11 +622,10 @@ public class Sintatico {
 		
 	}
 	
-	private void xexpnum() throws EOFException, IOException{
+	private void xexpnum(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("XEXPNUM").contains(this.token.getTokenType())) {
-		
-			this.token = this.lexico.nextToken();
+
 			opnum();
 			expnum();
 		
@@ -612,7 +635,7 @@ public class Sintatico {
 		
 	}
 	
-	private void fopnum() throws EOFException, IOException {
+	private void fopnum(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FOPNUM_1").contains(this.token.getTokenType())) {
 			
@@ -625,7 +648,7 @@ public class Sintatico {
 
 	}
 
-	private void fexpnum() throws EOFException, IOException {
+	private void fexpnum(){
 		
 		if(TabFirstFollow.getInstance().getFirst().get("FEXPNUM").contains(this.token.getTokenType())) {
 			
@@ -635,16 +658,6 @@ public class Sintatico {
 		
 		}else {
 			ErrorHandler.getInstance().registrarErro(ErrorHandler.gerarErroTokenNaoEsperado(this.token.getLexema(), this.token.getLin(), this.token.getCol()));
-		}
-	}
-				
-	//printa os tokens 
-	private void printToken(Token t) {
-		
-		if(t.getTokenType() != TokenType.EOF) {
-			System.out.println("TOKEN -> Tipo: " + t.getTokenType() + " - Lexema: " + t.getLexema());
-		}else {
-			System.out.println("TOKEN -> Tipo: " + t.getTokenType());
 		}
 	}
 }

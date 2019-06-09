@@ -61,12 +61,18 @@ public class FileLoader extends BufferedReader {
      * Metodo que retorna o ultimo caractere lido.
      * @throws IOException
      */
-    public void resetLastChar() throws IOException {
-        this.reset();
-        column--;
-        if (column < 0) {
-            column = lastLineSize;
-            line--;
+    public void resetLastChar(){
+        try {
+        	
+        	this.reset();
+            column--;
+            if (column < 0) {
+                column = lastLineSize;
+                line--;
+            }
+            
+        }catch(Exception e) {
+        	
         }
     }
 

@@ -1,4 +1,4 @@
-prgram TESTE_01;
+program TESTE_01;
     begin
     
         declare var_1 int;

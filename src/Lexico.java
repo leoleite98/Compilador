@@ -1,7 +1,5 @@
 //Leonardo Leite - CCO 7ºs - 1510032009
-import java.io.EOFException;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class Lexico {
 	
@@ -12,7 +10,7 @@ public class Lexico {
 	}
 	
 	//valida os token, caso seja processado com sucesso retorna o Token, caso ocorra falhas insere no ErrorHandler o tipo do erro encontrado.
-	public Token nextToken() throws EOFException, IOException {
+	public Token nextToken(){
 		
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		char c;
@@ -70,7 +68,7 @@ public class Lexico {
 	}
 	
 	//processa a leitura de comentario, chama nextToken novamente em caso de sucesso
-	private Token processarComentario(char c) throws EOFException, IOException {
+	private Token processarComentario(char c){
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		solicitacao = solicitarNextChar();
 		
@@ -119,7 +117,7 @@ public class Lexico {
 	}
 	
 	//processa os possíveis valores para o token do tipo relop
-	private Token processarRelop(char c) throws EOFException, IOException {
+	private Token processarRelop(char c){
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		String lexema = String.valueOf(c);
 		
@@ -161,7 +159,7 @@ public class Lexico {
 	}
 	
 	//processa a leitura de um Assing
-	private Token processarAssign(char c) throws EOFException, IOException {
+	private Token processarAssign(char c){
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		String lexema = String.valueOf(c);
 		
@@ -215,7 +213,7 @@ public class Lexico {
 	}
 	
 	//processa a leitura de um ID ou palavra reservada
-	private Token processarAlphabetic(char c) throws IOException {
+	private Token processarAlphabetic(char c){
 		
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		String lexema = "";
@@ -244,7 +242,7 @@ public class Lexico {
 	}
 	
 	//processa a leitura de um digit e suas possíveis variações, caso contenha vírgulha é retornado um FLOAT, se não um INT 
-	private Token processarDigit(char c) throws IOException {
+	private Token processarDigit(char c){
 		
 		RetornoSolicitacaoChar solicitacao = new RetornoSolicitacaoChar();
 		boolean isFloat = false;

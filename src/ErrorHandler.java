@@ -1,7 +1,6 @@
 //Leonardo Leite - CCO 7ºs - 1510032009
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ErrorHandler {
 		
@@ -22,7 +21,12 @@ public class ErrorHandler {
 	
 	//printa erros 
 	public void gerarRelatorio() {
-		System.out.println("-----ERRO(S) NA LEITURA DO ARQUIVO-----");
+		System.out.println("-----------------ERRO(S) NA LEITURA DO ARQUIVO-----------------");
+		
+		if(this.errors.isEmpty()) {
+			System.out.println("Não houve erros na leitura do arquivo :)");
+		}
+		
 		for(String error : this.errors) {
 			System.out.println(error);
 		}
@@ -70,6 +74,10 @@ public class ErrorHandler {
 		return "Não foi encontrado 'end_prog' no final do programa. Linha " + line + ", coluna " + column + ".";
 	}
 	
+	public static String gerrarErroBeginBloco(long line, long column) {
+		return "Não foi encontrado 'begin' no início do bloco. Linha " + line + ", coluna " + column + ".";
+	}
+	
 	public static String gerarErroEndBloco(long line, long column) {
 		return "Não foi encontrado 'end' no final do bloco. Linha " + line + ", coluna " + column + ".";
 	}
@@ -77,7 +85,6 @@ public class ErrorHandler {
 	public static String gerarErroTermEndProgram(long line, long column) {
 		return "Não foi encontrado ';' no final do programa. Linha " + line + ", coluna " + column + ".";
 	}
-	
 	
 	public static String gerarErroIdDeclare(long line, long column) {
 		return "É necessário informar um nome para a variável. Linha " + line + ", coluna " + column + ".";
@@ -89,6 +96,14 @@ public class ErrorHandler {
 	
 	public static String gerarErroTermDeclare(long line, long column) {
 		return "Não foi encontrado ';' no final da declaração da váriavel. Linha " + line + ", coluna " + column + "."; 
+	}
+	
+	public static String gerarErroIdExistenteDeclare(String id, long line, long column) {
+		return "O ID '" + id + "' já foi declarado, por favor altere o nome. Linha " + line + ", coluna " + column + "."; 
+	}
+	
+	public static String gerarErroIdNaoDeclarado(String id, long line, long column) {
+		return "O ID '" + id + "' não foi declarado. Linha " + line + ", coluna " + column + "."; 
 	}
 	
 	public static String gerarErroLparIf(long line, long column) {

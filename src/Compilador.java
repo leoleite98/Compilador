@@ -24,17 +24,15 @@ public class Compilador {
 				Sintatico sint = new Sintatico(localArquivo);
 				encontrouArquivo = true;
 				
-				System.out.println("-----LEITURA DO ARQUIVO INICIADA-------");
+				System.out.println("-----------------LEITURA DO ARQUIVO INICIADA-----------------");
+				
 				//inicia o processamento do analisador sintatico
 				sint.processar();
+				
 			}catch(Exception e) {
 				System.out.printf(e.getMessage() + "\n");
 			}
 		}
-		
-		
-			
-
 	}
 
 }
